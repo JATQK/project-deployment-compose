@@ -1,5 +1,7 @@
 # Project for deploying git 2 rdf via docker compose
 
+This project purpose it to enable the deployment of the complete git2rdflab infrastructure as a docker compose target. 
+
 ## Local deployment
 As of the 03rd of March 2024 the images of the target services are not yet available on docker hub as images.
 Therefor they need to be built in the corresponding projects via the given scripts. This way, the required
