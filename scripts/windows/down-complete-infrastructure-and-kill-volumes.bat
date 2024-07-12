@@ -1,3 +1,3 @@
 @echo off
 
-docker compose down -v
+docker compose --profile worker down -v

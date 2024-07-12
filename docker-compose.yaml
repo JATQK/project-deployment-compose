@@ -9,6 +9,7 @@ services:
       POSTGRES_DB: gitrdfdb
     ports:
       - "5432:5432"
+    profiles: ["no-worker", "worker"]
 
   listener-service:
     image: git2rdflab/listener-service:0.0.1-SNAPSHOT
@@ -19,6 +20,7 @@ services:
     environment:
       SPRING_DATASOURCE_PASSWORD: ${POSTGRES_PASSWORD}
       SPRING_DATASOURCE_URL: jdbc:postgresql://postgresdb:5432/gitrdfdb
+    profiles: ["no-worker", "worker"]
 
   worker-service:
     image: git2rdflab/worker-service:0.0.1-SNAPSHOT
@@ -35,6 +37,7 @@ services:
       GITHUB_LOGIN_SYSTEM_USER_PERSONALACCESSTOKEN: ${GITHUB_LOGIN_SYSTEM_USER_PERSONALACCESSTOKEN}
       WORKER_TASK_RDFGITHUBREPO_ENABLED: true
       WORKER_TASK_RDFGITREPO_ENABLED: false
+    profiles: ["worker"]
 
   query-service:
     image: git2rdflab/query-service:0.0.1-SNAPSHOT
@@ -46,3 +49,4 @@ services:
     environment:
       SPRING_DATASOURCE_PASSWORD: ${POSTGRES_PASSWORD}
       SPRING_DATASOURCE_URL: jdbc:postgresql://postgresdb:5432/gitrdfdb
+    profiles: ["no-worker", "worker"]

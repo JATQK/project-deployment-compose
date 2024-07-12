@@ -1,3 +1,3 @@
 @echo off
 
-docker compose --env-file ./local-development/compose/.env.local up -d
+docker compose --profile worker --env-file ./local-development/compose/.env.local up -d
