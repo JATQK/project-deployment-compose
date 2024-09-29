@@ -3,44 +3,21 @@
 This project purpose it to enable the deployment of the complete git2rdflab infrastructure as a docker compose target. 
 
 ## Local deployment
-As of the 03rd of March 2024 the images of the target services are not yet available on docker hub as images.
-Therefor they need to be built in the corresponding projects via the given scripts. This way, the required
-service images will then be available locally. 
-
 The services (especially the worker-service) have secrets, that need to be made available via environment variables.
 The given .env file in this project is only an example file, which can be used as a reference, when creating your own 
 .env file to then deploy the entire project via compose. The given scripts expect your .env.local file to be located
 in the ./local-development/compose/.env.local location. The 'local-development' folder is part of the .gitignore,
 and therefore your secrets will not be committed this way.
 
-### Overview
+Example command on how to run the infrastructure locally
 
-This guide provides step-by-step instructions for deploying the Git2RDF project using Docker. You will download necessary repositories, install dependencies, configure environment variables, and deploy Docker images.
+`docker compose --profile worker --env-file ./local-development/compose/.env.local up -d`
 
-### Prerequisites
+Example command on how to down the infrastructure locally
 
-- Docker installed on your system
-- Maven installed on your system
-- Git installed on your system
+`docker compose --profile worker down -v`
 
-### 1. Download All Necessary Repositories
-
-Clone the following repositories to your local machine:
-
-1. `git clone https://github.com/git2RDFLab/project-deployment-compose`
-2. `git clone https://github.com/git2RDFLab/sparql-query-prototype`
-3. `git clone https://github.com/git2RDFLab/ccr-worker-prototype`
-4. `git clone https://github.com/git2RDFLab/ccr-listener-prototype`
-5. `git clone https://github.com/git2RDFLab/database-shared-common`
-
-### 2. Install Dependency: Database-Shared-Common
-
-1. Navigate to the `database-shared-common` directory in a terminal.
-2. Execute `mvn clean install` to install the maven artifact locally. This step makes the dependency available for other services.
-
-### 3. Preprocess Project-Deployment-Compose
-
-#### Configure Environment Variables
+### Configure Environment Variables
 
 1. Navigate to the `project-deployment-compose` directory.
 2. Inside `./local-development/compose/`, create a new `.env` file named `.env.local`.
@@ -71,31 +48,6 @@ Clone the following repositories to your local machine:
         - Select "Personal access tokens" and click on "Generate new token".
         - Give the token the necessary permissions, which should include at least full repository access.
         - Once the token is generated, copy it into a text editor, ensuring there are no spaces or line breaks. This is your `GITHUB_LOGIN_SYSTEM_USER_PERSONALACCESSTOKEN`.
-
-
-#### Build Docker Images of the Services
-
-Ensure all unrelated services are down and not running in the background before proceeding.
-
-1. **Create Image for Listener-Prototype**:
-   - Navigate to `ccr-listener-prototype` directory.
-   - Run `mvn clean package`.
-   - Run `docker build -t git2rdflab/listener-service:0.0.1-SNAPSHOT .`.
-
-2. **Create Image for Worker-Prototype**:
-   - Navigate to `ccr-worker-prototype` directory.
-   - Execute the same commands as above, replacing `listener` with `worker` in the Docker build command.
-
-3. **Create Image for SPARQL-Query-Prototype**:
-   - Navigate to `sparql-query-prototype` directory.
-   - Follow the same steps as above, substituting `query` for the respective service in the Docker build command.
-
-### 4. Deploy the Docker Image
-
-1. Open a terminal window inside the `project-deployment-compose` directory.
-2. Run `docker compose --env-file ./local-development/compose/.env.local up -d`.
-   - Make sure to adjust the path of your `.env.local` if necessary.
-
 
 ## .Env Variables
 The used variables are only .env variables for the docker compose file. In the end, the .env variables only shadow
