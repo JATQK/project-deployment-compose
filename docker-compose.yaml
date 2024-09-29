@@ -12,7 +12,7 @@ services:
     profiles: ["no-worker", "worker"]
 
   listener-service:
-    image: superdose/git2rdf-listener-service:0.0.1-SNAPSHOT # git2rdflab/listener-service:0.0.1-SNAPSHOT
+    image: superdose/git2rdf-listener-service:1.0.0
     depends_on:
       - postgresdb
     ports:
@@ -23,7 +23,7 @@ services:
     profiles: ["no-worker", "worker"]
 
   worker-service:
-    image: superdose/git2rdf-worker-service:0.0.1-SNAPSHOT # git2rdflab/worker-service:0.0.1-SNAPSHOT
+    image: superdose/git2rdf-worker-service:1.0.0
     depends_on:
       - postgresdb
       - listener-service
@@ -40,7 +40,7 @@ services:
     profiles: ["worker"]
 
   query-service:
-    image: superdose/git2rdf-query-service:0.0.1-SNAPSHOT # git2rdflab/query-service:0.0.1-SNAPSHOT
+    image: superdose/git2rdf-query-service:1.0.0
     depends_on:
       - postgresdb
       - listener-service
