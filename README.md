@@ -102,6 +102,22 @@ alias gitlotus-status="docker compose --env-file .env.local ps"
 | `gitlotus-logs` | 📋 View logs |
 | `gitlotus-status` | 📊 Check service status |
 
+
+## 🖥️ Interactive Setup Helper
+
+Run the small terminal helper to guide initial setup and manage containers. The
+script walks you through the following steps:
+1. Choose the `.env.local` file (or provide a custom path).
+2. Check that required Docker images exist.
+3. Validate all mandatory environment variables.
+4. Detect the Docker build platform.
+5. Optionally build the images.
+6. Start, restart or stop the containers through a simple menu.
+
+```bash
+python scripts/terminal_ui.py
+```
+
 ---
 
 ## 🌍 Environment-Specific Deployment
