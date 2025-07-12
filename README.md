@@ -1,153 +1,232 @@
-<a href="https://github.com/git2RDFLab/"><img align="right" role="right" height="96" src="https://github.com/git2RDFLab/.github/blob/main/profile/images/GitLotus-logo.png?raw=true" style="height: 96px;z-index: 1000000" title="GitLotus" alt="GitLotus"/></a>
+# 🌸 GitLotus Deployment Guide
 
-# Deploying GitLotus components
+> **Simplified Docker Compose deployment for GitLotus infrastructure components**
 
-This project's purpose is to enable the deployment of the complete GitLotus infrastructure as a `docker-compose` target. 
-The script starts all required components: [worker service](https://github.com/git2RDFLab/ccr-worker-prototype/), [SPARQL query service](https://github.com/git2RDFLab/sparql-query-prototype/), **analysis service**, [listener service](https://github.com/git2RDFLab/ccr-listener-prototype/), and a [PostgreSQL database](https://www.postgresql.org/) for persistant data storage.
+---
 
-## Deployment and executing all components
+## 🚀 Quick Start
 
-The services (especially the worker-service) have secrets, that need to be made available via environment variables. 
-The provided file `.env` in this project is only an example file, which can be used as a reference when creating your own `.env` file to then deploy the entire project via compose. 
-The given scripts expect your `.env.local` file to be located at `./local-development/compose/.env.local` (description see below). 
-The folder `local-development` is part of the `.gitignore`, and therefore your secrets will not be committed this way.
+### Deploy Complete Infrastructure
 
-### Starting all components
+**Recommended for most use cases:**
 
-Example command on how to run the infrastructure (a local [Docker](https://www.docker.com/) installation is required):
-
-Example command on how to run the infrastructure locally
-
-`docker compose --profile worker --env-file ./local-development/compose/.env.local up -d`
-
-`docker compose --profile worker --env-file .env.local up -d `
-`docker compose --profile worker --env-file .env.local build --no-cache `
-
-Restart the complete stack
-
-`
-docker compose --profile worker --env-file .env.local down --remove-orphans && \
-docker compose --profile worker --env-file .env.local build --no-cache && \
-docker compose --profile worker --env-file .env.local up -d
-`
-
-
-Restart only the worker-service:
-
-`
-docker compose --env-file .env.local stop worker-service && \
-docker compose --env-file .env.local rm -f worker-service && \
-docker compose --env-file .env.local build --no-cache worker-service && \
-docker compose --env-file .env.local up -d worker-service
-`
-
-Restart only the query-service:
-
-`
-docker compose --env-file .env.local stop query-service && \
-docker compose --env-file .env.local rm -f query-service && \
-docker compose --env-file .env.local build --no-cache query-service && \
-docker compose --env-file .env.local up -d query-service
-`
-
-Restart only the analysis-service:
-
-`
-docker compose --env-file .env.local stop analysis-service && \
-docker compose --env-file .env.local rm -f analysis-service && \
-docker compose --env-file .env.local build --no-cache analysis-service && \
-docker compose --env-file .env.local up -d analysis-service
-`
-
-
-```ShellSession
-git clone git@github.com:git2RDFLab/project-deployment-compose.git
-cd project-deployment-compose
-docker compose --profile worker --env-file ./local-development/compose/.env.local up -d
+```bash
+# Deploy all services with worker
+docker compose --profile worker --env-file .env.local up -d --build --quiet-pull
 ```
 
-See [docker-compose.yaml](https://github.com/git2RDFLab/project-deployment-compose/blob/main/docker-compose.yaml) for the predefined configurations.
+**For testing without worker:**
 
-### Stopping all components
-
-Example command on how to stop the currently running components:
-
-```ShellSession
-docker compose --profile worker down -v
+```bash
+# Deploy services without worker
+docker compose --profile no-worker --env-file .env.local up -d --build --quiet-pull
 ```
 
-### Accessing Web services locally
+### Stop Infrastructure
 
-* The API definitions can be accessed via the Swagger UI of the [listener service](https://github.com/git2RDFLab/ccr-listener-prototype/):<br/>
-http://localhost:8080/listener-service/swagger-ui/index.html
-* The API definitions of the SPARQL queries can be accessed via the Swagger UI of the [SPARQL query service](https://github.com/git2RDFLab/sparql-query-prototype/):<br/>
-http://localhost:7080/query-service/swagger-ui/index.html
-* The API definitions of the analysis results can be accessed via the Swagger UI of the analysis service:<br/>
-http://localhost:9080/analysis-service/swagger-ui/index.html
+```bash
+# Stop all services (preserve data)
+docker compose --profile worker --env-file .env.local down
 
-## Configuration
+# Stop all services + remove volumes (clean slate)
+docker compose --profile worker --env-file .env.local down -v
+```
 
-### Configure Environment Variables
+### Force Rebuild & Redeploy
 
-1. Navigate to the directory `project-deployment-compose`.
-2. Inside `./local-development/compose/`, create a new environment file named `.env.local`.
-3. Configure the environment variables in `.env.local` as described in the following.
+```bash
+# Force rebuild and redeploy everything
+docker compose --profile worker --env-file .env.local up -d --build --force-recreate --quiet-pull
+```
 
-#### `GITHUB_LOGIN_APP_ID`
+## Nuclear Rebuild & Redeploy
 
-- Go to [GitHub](https://github.com) and sign in.
-- Navigate to your profile settings, then to Developer Settings at the bottom of the page.
-- Select "GitHub Apps" and click on "New GitHub App".
-- Fill in the necessary information for your app. For this setup, you can use placeholder values.
-- Once the app is created, you will find the App ID listed at the top of the app's page. This is your `GITHUB_LOGIN_APP_ID`.
+```bash
+# Force prune of all entries and datasets and redeploy everything
+docker compose --profile worker --env-file .env.local down -v && \
+docker compose --profile worker --env-file .env.local up -d --build --quiet-pull
+```
+---
 
-#### `GITHUB_LOGIN_APP_INSTALLATION_ID`
+## 🎯 Individual Service Management
 
-- In the GitHub App settings page, click on "Install App" in the sidebar.
-- Install the app to your account or organization as needed.
-- After installation, navigate to the installation settings page for your app. The URL will contain a number at the end (e.g., `https://github.com/settings/installations/123456`). This number is your `GITHUB_LOGIN_APP_INSTALLATION_ID`.
+### Deploy Single Services
 
-#### `GITHUB_LOGIN_KEY`
+| Service | Command |
+|---------|---------|
+| **Database** | `docker compose --env-file .env.local up -d postgresdb` |
+| **Listener** | `docker compose --env-file .env.local up -d --build listener-service` |
+| **Worker** | `docker compose --env-file .env.local up -d --build worker-service` |
+| **Query** | `docker compose --env-file .env.local up -d --build query-service` |
+| **Analysis** | `docker compose --env-file .env.local up -d --build analysis-service` |
 
-- Stay within the GitHub App settings, scroll down to the "Private keys" section.
-- Click on "Generate a private key".
-- Once the key is generated and downloaded, open it with a text editor. Remove all line breaks and spaces, making it a continuous string of characters. This is your `GITHUB_LOGIN_KEY`.
+### Update Single Services
 
-#### `GITHUB_LOGIN_SYSTEM_USER_NAME`
+**Quick update (rebuild & redeploy):**
 
-Your GitHub username is needed here. Simply navigate to your GitHub profile page; your username is at the top of the page and in the page's URL.
+```bash
+# Worker service
+docker compose --env-file .env.local up -d --build --force-recreate worker-service
 
-#### `GITHUB_LOGIN_SYSTEM_USER_PERSONALACCESSTOKEN`
+# Query service  
+docker compose --env-file .env.local up -d --build --force-recreate query-service
 
-- Go back to your profile settings on GitHub, then to Developer Settings.
-- Select "Personal access tokens" and click on "Generate new token".
-- Give the token the necessary permissions, which should include at least full repository access.
-- Once the token is generated, copy it into a text editor, ensuring there are no spaces or line breaks. This is your `GITHUB_LOGIN_SYSTEM_USER_PERSONALACCESSTOKEN`.
+# Analysis service
+docker compose --env-file .env.local up -d --build --force-recreate analysis-service
+```
 
-### Variables in `.env`
+---
 
-The used variables are only `.env` variables needed for starting the components using docker compose. 
-In the end, the `.env` variables only shadow actual environment variables from the target projects. 
-The following table only maps the explanations of the environment variables from the corresponding projects to the corresponding `.env` variables in this project as needed for successfully executing docker compose.
+## ⚡ Quick Commands (Shell Aliases)
 
-| Environment Variables                        | Description                         |
-|----------------------------------------------|-----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------|
-| `POSTGRES_PASSWORD`                            | The password of the PostgreSQL database.  |
-| `GITHUB_LOGIN_APP_ID`                          | The id of your GitHub app, which you use for authentication to GitHub. The ID can be retrieved from the user -> settings -> developer settings -> (GitHub app) menu. [More information.](https://docs.github.com/en/apps/creating-github-apps/authenticating-with-a-github-app/generating-a-json-web-token-jwt-for-a-github-app). |
-| `GITHUB_LOGIN_APP_INSTALLATION_ID`             | The installation ID of your GitHub app, which you use for authentication to GitHub. The ID can be retrieved for example via 'GET /users/{username}/installation'. [More information.](https://docs.github.com/en/apps/creating-github-apps/authenticating-with-a-github-app/authenticating-as-a-github-app-installation).         |
-| `GITHUB_LOGIN_KEY`                             | The private pem-base64-key generated by your GitHub app. The value should only contain the base64 data. Remove the Key-Type declarations and line breaks. Will be used to sign JWT tokens. [More information.](https://docs.github.com/en/apps/creating-github-apps/authenticating-with-a-github-app/managing-private-keys-for-github-apps). |
-| `GITHUB_LOGIN_SYSTEM_USER_NAME`                | Your GitHub login username. Is used in combination with your personal access token to pull git repos from GitHub.|
-| `GITHUB_LOGIN_SYSTEM_USER_PERSONALACCESSTOKEN` | A personal access token for your GitHub user. Is used in combination with your username to pull git repos from GitHub. |
+**Add these to your `~/.bashrc` or `~/.zshrc` for faster deployment:**
 
-## Contribute
+```bash
+# GitLotus aliases
+alias gitlotus-deploy="docker compose --profile worker --env-file .env.local up -d --build --quiet-pull"
+alias gitlotus-stop="docker compose --profile worker --env-file .env.local down"
+alias gitlotus-clean="docker compose --profile worker --env-file .env.local down -v"
+alias gitlotus-rebuild="docker compose --profile worker --env-file .env.local up -d --build --force-recreate --quiet-pull"
+alias gitlotus-logs="docker compose --profile worker --env-file .env.local logs"
+alias gitlotus-status="docker compose --env-file .env.local ps"
+```
 
-We are happy to receive your contributions. 
-Please create a pull request or an issue. 
-As this tool is published under the MIT license, feel free to fork it and use it in your own projects.
+**Usage after setting aliases:**
 
-## Disclaimer
+| Command | Description |
+|---------|-------------|
+| `gitlotus-deploy` | 🚀 Deploy everything |
+| `gitlotus-stop` | ⏹️ Stop everything |
+| `gitlotus-clean` | 🧹 Stop and clean volumes |
+| `gitlotus-rebuild` | 🔄 Force rebuild everything |
+| `gitlotus-logs` | 📋 View logs |
+| `gitlotus-status` | 📊 Check service status |
 
-This tool just temporarily stores the image data. 
-It is provided "as is" and without any warranty, express or implied.
+---
 
+## 🌍 Environment-Specific Deployment
 
+### Local Development
+```bash
+docker compose --profile worker \
+  --env-file ./local-development/compose/.env.local \
+  up -d --build --quiet-pull
+```
+
+### Production
+```bash
+docker compose --profile worker \
+  --env-file .env.production \
+  up -d --build --quiet-pull
+```
+
+### Testing
+```bash
+docker compose --profile no-worker \
+  --env-file .env.test \
+  up -d --build --quiet-pull
+```
+
+---
+
+## 🔍 Health Checks & Monitoring
+
+### Service Status
+```bash
+# Check running containers
+docker compose --env-file .env.local ps
+
+# Detailed status with ports
+docker compose --env-file .env.local ps --format "table {{.Service}}\t{{.Status}}\t{{.Ports}}"
+
+# Resource usage
+docker compose --env-file .env.local top
+```
+
+### Logs
+```bash
+# All services
+docker compose --env-file .env.local logs
+
+# Specific service (follow mode)
+docker compose --env-file .env.local logs -f worker-service
+
+# Last 50 lines
+docker compose --env-file .env.local logs --tail=50
+```
+
+---
+
+## 🌐 Service Access Points
+
+Once deployed, access your services at:
+
+| Service | URL | Description |
+|---------|-----|-------------|
+| **Listener API** | http://localhost:8080/listener-service/swagger-ui/index.html | Main API endpoints |
+| **Query API** | http://localhost:7080/query-service/swagger-ui/index.html | SPARQL queries |
+| **Analysis API** | http://localhost:9080/analysis-service/swagger-ui/index.html | Analysis results |
+| **Database** | `localhost:5432` | PostgreSQL connection |
+
+---
+
+## 📋 Common Deployment Scenarios
+
+### 🆕 Fresh Start (Clean Deployment)
+```bash
+# Complete clean deployment
+docker compose --profile worker --env-file .env.local down -v
+docker compose --profile worker --env-file .env.local up -d --build --quiet-pull
+```
+
+### 🔄 Update Application Code
+```bash
+# Rebuild and redeploy with latest code
+docker compose --profile worker --env-file .env.local up -d --build --force-recreate --quiet-pull
+```
+
+### 📈 Scale Services
+```bash
+# Scale worker service to 3 instances
+docker compose --env-file .env.local up -d --scale worker-service=3
+
+# Scale multiple services
+docker compose --env-file .env.local up -d \
+  --scale worker-service=3 \
+  --scale query-service=2
+```
+
+### 🔧 Development Mode
+```bash
+# Watch for changes (Docker Compose v2.22+)
+docker compose --profile worker --env-file .env.local watch
+
+# Development with volume mounts for hot reload
+docker compose -f docker-compose.yml -f docker-compose.dev.yml \
+  --env-file .env.local up -d
+```
+
+### 🚨 Emergency Restart
+```bash
+# Quick restart when things go wrong
+docker compose --profile worker --env-file .env.local restart
+
+# Nuclear option - rebuild everything
+docker compose --profile worker --env-file .env.local down -v
+docker system prune -f
+docker compose --profile worker --env-file .env.local up -d --build --quiet-pull
+```
+
+---
+
+## 💡 Tips & Best Practices
+
+> **🔧 Performance**: Use `--quiet-pull` to reduce build noise and improve CI/CD performance
+> 
+> **🔒 Security**: Never commit `.env.local` files - keep them in `./local-development/compose/`
+> 
+> **📊 Monitoring**: Use `docker compose logs -f` to monitor deployments in real-time
+> 
+> **🧹 Cleanup**: Regularly run `docker system prune` to free up disk space
+> 
+> **⚡ Speed**: Set up shell aliases for frequently used commands

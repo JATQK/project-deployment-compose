@@ -9,20 +9,7 @@ services:
     ports:
       - "5432:5432"
     profiles: ["no-worker", "worker"]
-
-    # listener-service:
-    #   platform: linux/arm64
-    #   build: .
-    #   image: superdose/git2rdf-listener-service:1.0.0
-    #   depends_on:
-    #     - postgresdb
-    #   ports:
-    #     - "8080:8080"
-    #   environment:
-    #     SPRING_DATASOURCE_PASSWORD: ${POSTGRES_PASSWORD}
-    #     SPRING_DATASOURCE_URL: jdbc:postgresql://postgresdb:5432/gitrdfdb
-    #   profiles: ["no-worker", "worker"]
-
+    
   listener-service:
     platform: linux/arm64
     build:
@@ -82,15 +69,19 @@ services:
   analysis-service:
     platform: linux/arm64
     build:
-      context: ../analysis
+      context: ../hybrid-analysis-prototype  # Adjust path as needed
       dockerfile: Dockerfile
     image: git2rdf-analysis-service:1.0.0
     depends_on:
       - postgresdb
       - listener-service
     ports:
-      - "9080:8080"
+      - "8081:8081"  # Different port to avoid conflicts
     environment:
       SPRING_DATASOURCE_PASSWORD: ${POSTGRES_PASSWORD}
       SPRING_DATASOURCE_URL: jdbc:postgresql://postgresdb:5432/gitrdfdb
+      # LLM API configurations
+      OPENROUTER_API_KEY: ${OPENROUTER_API_KEY}
+      GEMINI_API_KEY: ${GEMINI_API_KEY}
+      SPARQL_ENDPOINT_URL: http://query-service:8080/query-service/api/v1/github/rdf/query/
     profiles: ["no-worker", "worker"]
