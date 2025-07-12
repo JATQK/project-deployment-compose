@@ -1,5 +1,4 @@
 version: '3.1'
-
 services:
   postgresdb:
     image: postgres:15.5
@@ -11,8 +10,25 @@ services:
       - "5432:5432"
     profiles: ["no-worker", "worker"]
 
+    # listener-service:
+    #   platform: linux/arm64
+    #   build: .
+    #   image: superdose/git2rdf-listener-service:1.0.0
+    #   depends_on:
+    #     - postgresdb
+    #   ports:
+    #     - "8080:8080"
+    #   environment:
+    #     SPRING_DATASOURCE_PASSWORD: ${POSTGRES_PASSWORD}
+    #     SPRING_DATASOURCE_URL: jdbc:postgresql://postgresdb:5432/gitrdfdb
+    #   profiles: ["no-worker", "worker"]
+
   listener-service:
-    image: superdose/git2rdf-listener-service:1.0.0
+    platform: linux/arm64
+    build:
+      context: ../jatqk-ccr-listener-prototype
+      dockerfile: Dockerfile
+    image: git2rdf-listener-service:1.0.0
     depends_on:
       - postgresdb
     ports:
@@ -23,11 +39,19 @@ services:
     profiles: ["no-worker", "worker"]
 
   worker-service:
-    image: superdose/git2rdf-worker-service:1.0.0
+    platform: linux/arm64
+    build:
+      context: ../jatqk-ccr-worker-prototype
+      dockerfile: Dockerfile
+    image: git2rdf-worker-service:1.0.0
+    ports:
+      - "5005:5005" # Debugging port
     depends_on:
       - postgresdb
       - listener-service
     environment:
+      LOGGING_LEVEL_ROOT: DEBUG
+      JAVA_TOOL_OPTIONS: "-agentlib:jdwp=transport=dt_socket,server=y,suspend=n,address=*:5005"
       SPRING_DATASOURCE_PASSWORD: ${POSTGRES_PASSWORD}
       SPRING_DATASOURCE_URL: jdbc:postgresql://postgresdb:5432/gitrdfdb
       GITHUB_LOGIN_APP_ID: ${GITHUB_LOGIN_APP_ID}
@@ -40,7 +64,11 @@ services:
     profiles: ["worker"]
 
   query-service:
-    image: superdose/git2rdf-query-service:1.0.0
+    platform: linux/arm64
+    build:
+      context: ../jatqk-sparql-query-prototype
+      dockerfile: Dockerfile
+    image: git2rdf-query-service:1.0.0
     depends_on:
       - postgresdb
       - listener-service

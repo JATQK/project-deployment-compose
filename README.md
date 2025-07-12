@@ -16,6 +16,32 @@ The folder `local-development` is part of the `.gitignore`, and therefore your s
 
 Example command on how to run the infrastructure (a local [Docker](https://www.docker.com/) installation is required):
 
+Example command on how to run the infrastructure locally
+
+`docker compose --profile worker --env-file ./local-development/compose/.env.local up -d`
+
+`docker compose --profile worker --env-file .env.local up -d `
+`docker compose --profile worker --env-file .env.local build --no-cache `
+
+Restart the complete stack
+
+`
+docker compose --profile worker --env-file .env.local down --remove-orphans && \
+docker compose --profile worker --env-file .env.local build --no-cache && \
+docker compose --profile worker --env-file .env.local up -d
+`
+
+
+Restart only the worker-service:
+
+`
+docker compose --env-file .env.local stop worker-service && \
+docker compose --env-file .env.local rm -f worker-service && \
+docker compose --env-file .env.local build --no-cache worker-service && \
+docker compose --env-file .env.local up -d worker-service
+`
+
+
 ```ShellSession
 git clone git@github.com:git2RDFLab/project-deployment-compose.git
 cd project-deployment-compose
