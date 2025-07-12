@@ -3,7 +3,7 @@
 # Deploying GitLotus components
 
 This project's purpose is to enable the deployment of the complete GitLotus infrastructure as a `docker-compose` target. 
-The script starts all required components: [worker service](https://github.com/git2RDFLab/ccr-worker-prototype/), [SPARQL query service](https://github.com/git2RDFLab/sparql-query-prototype/), [listener service](https://github.com/git2RDFLab/ccr-listener-prototype/), and a [PostgreSQL database](https://www.postgresql.org/) for persistant data storage.
+The script starts all required components: [worker service](https://github.com/git2RDFLab/ccr-worker-prototype/), [SPARQL query service](https://github.com/git2RDFLab/sparql-query-prototype/), **analysis service**, [listener service](https://github.com/git2RDFLab/ccr-listener-prototype/), and a [PostgreSQL database](https://www.postgresql.org/) for persistant data storage.
 
 ## Deployment and executing all components
 
@@ -41,6 +41,24 @@ docker compose --env-file .env.local build --no-cache worker-service && \
 docker compose --env-file .env.local up -d worker-service
 `
 
+Restart only the query-service:
+
+`
+docker compose --env-file .env.local stop query-service && \
+docker compose --env-file .env.local rm -f query-service && \
+docker compose --env-file .env.local build --no-cache query-service && \
+docker compose --env-file .env.local up -d query-service
+`
+
+Restart only the analysis-service:
+
+`
+docker compose --env-file .env.local stop analysis-service && \
+docker compose --env-file .env.local rm -f analysis-service && \
+docker compose --env-file .env.local build --no-cache analysis-service && \
+docker compose --env-file .env.local up -d analysis-service
+`
+
 
 ```ShellSession
 git clone git@github.com:git2RDFLab/project-deployment-compose.git
@@ -64,6 +82,8 @@ docker compose --profile worker down -v
 http://localhost:8080/listener-service/swagger-ui/index.html
 * The API definitions of the SPARQL queries can be accessed via the Swagger UI of the [SPARQL query service](https://github.com/git2RDFLab/sparql-query-prototype/):<br/>
 http://localhost:7080/query-service/swagger-ui/index.html
+* The API definitions of the analysis results can be accessed via the Swagger UI of the analysis service:<br/>
+http://localhost:9080/analysis-service/swagger-ui/index.html
 
 ## Configuration
 
