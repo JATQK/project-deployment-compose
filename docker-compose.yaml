@@ -9,9 +9,9 @@ services:
     ports:
       - "5432:5432"
     profiles: ["no-worker", "worker"]
-    
+
   listener-service:
-    platform: linux/arm64
+    platform: ${DOCKER_PLATFORM:-linux/amd64}
     build:
       context: ../jatqk-ccr-listener-prototype
       dockerfile: Dockerfile
@@ -26,7 +26,7 @@ services:
     profiles: ["no-worker", "worker"]
 
   worker-service:
-    platform: linux/arm64
+    platform: ${DOCKER_PLATFORM:-linux/amd64}
     build:
       context: ../jatqk-ccr-worker-prototype
       dockerfile: Dockerfile
@@ -51,7 +51,7 @@ services:
     profiles: ["worker"]
 
   query-service:
-    platform: linux/arm64
+    platform: ${DOCKER_PLATFORM:-linux/amd64}
     build:
       context: ../jatqk-sparql-query-prototype
       dockerfile: Dockerfile
@@ -67,16 +67,16 @@ services:
     profiles: ["no-worker", "worker"]
 
   analysis-service:
-    platform: linux/arm64
+    platform: ${DOCKER_PLATFORM:-linux/amd64}
     build:
-      context: ../hybrid-analysis-prototype  # Adjust path as needed
+      context: ../hybrid-analysis-prototype # Adjust path as needed
       dockerfile: Dockerfile
     image: git2rdf-analysis-service:1.0.0
     depends_on:
       - postgresdb
       - listener-service
     ports:
-      - "8081:8081"  # Different port to avoid conflicts
+      - "8081:8081" # Different port to avoid conflicts
     environment:
       SPRING_DATASOURCE_PASSWORD: ${POSTGRES_PASSWORD}
       SPRING_DATASOURCE_URL: jdbc:postgresql://postgresdb:5432/gitrdfdb
