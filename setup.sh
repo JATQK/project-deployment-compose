@@ -113,12 +113,18 @@ purge_containers() {
         "🗑️ Container Purge" "" \
         "This will:" \
         "1. Stop all running containers" \
-        "2. Remove all containers (running and stopped)" \
+        "2. Deleting all rating rdf files" \
+        "3. Remove all containers (running and stopped)" \
         "" "⚠️  This is irreversible!"
 
     if gum confirm "Really remove every Docker container?" --default=false; then
         print_status "Stopping any running containers…"
         docker container stop $(docker container ls -q) 2>/dev/null || true
+
+        print_status "Clearing output RDF folder…"
+        # adjust the path below if your RDF output directory lives elsewhere
+        rm -rf "./output/rdf/"* 2>/dev/null || true
+        print_success "✅ Output RDF folder cleared."
 
         print_status "Removing all containers…"
         docker container rm -f $(docker container ls -aq) 2>/dev/null || true
