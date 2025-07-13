@@ -27,5 +27,5 @@ build/
 
 ### VS Code ###
 .vscode/
-
+.deploy_cache
 .env.local

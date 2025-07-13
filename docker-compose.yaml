@@ -77,6 +77,8 @@ services:
       - listener-service
     ports:
       - "8081:8081" # Different port to avoid conflicts
+    volumes:
+      - ./output:/output
     environment:
       SPRING_DATASOURCE_PASSWORD: ${POSTGRES_PASSWORD}
       SPRING_DATASOURCE_URL: jdbc:postgresql://postgresdb:5432/gitrdfdb
