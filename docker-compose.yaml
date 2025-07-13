@@ -21,6 +21,7 @@ services:
     ports:
       - "8080:8080"
     environment:
+      LOGGING_LEVEL_ROOT: DEBUG
       SPRING_DATASOURCE_PASSWORD: ${POSTGRES_PASSWORD}
       SPRING_DATASOURCE_URL: jdbc:postgresql://postgresdb:5432/gitrdfdb
     profiles: ["no-worker", "worker"]

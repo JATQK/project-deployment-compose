@@ -29,3 +29,4 @@ build/
 .vscode/
 .deploy_cache
 .env.local
+/output/
