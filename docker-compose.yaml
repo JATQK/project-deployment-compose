@@ -79,7 +79,7 @@ services:
     ports:
       - "8081:8081" # Different port to avoid conflicts
     volumes:
-      - ./output:/output
+      - ./analysis:/analysis
     environment:
       SPRING_DATASOURCE_PASSWORD: ${POSTGRES_PASSWORD}
       SPRING_DATASOURCE_URL: jdbc:postgresql://postgresdb:5432/gitrdfdb
@@ -87,4 +87,5 @@ services:
       OPENROUTER_API_KEY: ${OPENROUTER_API_KEY}
       GEMINI_API_KEY: ${GEMINI_API_KEY}
       SPARQL_ENDPOINT_URL: http://query-service:8080/query-service/api/v1/github/rdf/query/
+      OPENAI_API_KEY: ${OPENAI_API_KEY}
     profiles: ["no-worker", "worker"]

@@ -82,10 +82,12 @@ GITHUB_LOGIN_SYSTEM_USER_PERSONALACCESSTOKEN=your_token
 
 # Analysis environment variables (OPTIONAL - leave as placeholder to disable analysis-service)
 OPENROUTER_API_KEY=your_openrouter_key_here
-GEMINI_API_KEY=your_gemini_key
 OPENROUTER_API_URL=your_openrouter_url
-LMSTUDIO_API_URL=your_lmstudio_url
+OPENAI_API_KEY=your_openai_key
+OPENAI_API_URL=your_openai_url
+GEMINI_API_KEY=your_gemini_key
 GEMINI_API_URL=your_gemini_url
+LMSTUDIO_API_URL=your_lmstudio_url
 EOF
     print_success "Environment file created: $ENV_FILE"
     print_status "Automatically set DOCKER_PLATFORM to '$detected_arch'."
@@ -113,7 +115,7 @@ purge_containers() {
         "🗑️ Container Purge" "" \
         "This will:" \
         "1. Stop all running containers" \
-        "2. Deleting all rating rdf files" \
+        "2. Deleting all rating files" \
         "3. Remove all containers (running and stopped)" \
         "" "⚠️  This is irreversible!"
 
@@ -121,10 +123,10 @@ purge_containers() {
         print_status "Stopping any running containers…"
         docker container stop $(docker container ls -q) 2>/dev/null || true
 
-        print_status "Clearing output RDF folder…"
-        # adjust the path below if your RDF output directory lives elsewhere
-        rm -rf "./output/rdf/"* 2>/dev/null || true
-        print_success "✅ Output RDF folder cleared."
+        print_status "Clearing analysis folder…"
+        # adjust the path below if your analysis directory lives elsewhere
+        rm -rf "./analysis/"* 2>/dev/null || true
+        print_success "✅ Analysis folder cleared."
 
         print_status "Removing all containers…"
         docker container rm -f $(docker container ls -aq) 2>/dev/null || true
@@ -341,7 +343,7 @@ build_from_scratch() {
         
         local cache_option=""
         local cache_choice
-        cache_choice=$(gum choose "Build with Cache (Faster)" "Build without Cache (Force Rebuild)")
+        cache_choice=$(gum choose "Build without Cache (Force Rebuild)" "Build with Cache (Faster)")
         
         if [[ "$cache_choice" == *"without Cache"* ]]; then
             cache_option="--no-cache"
@@ -363,6 +365,7 @@ build_from_scratch() {
         gum style --foreground 6 "Press any key to continue..."; read -n 1 -s
     fi
 }
+
 
 restart_apis() {
     clear
