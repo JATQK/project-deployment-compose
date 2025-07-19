@@ -30,3 +30,4 @@ build/
 .deploy_cache
 .env.local
 /output/
+/analysis/
